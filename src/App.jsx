@@ -16,7 +16,7 @@ import Navbar   from './components/Navbar';
 import Footer2  from './components/Footer2';
 import Cart     from './components/Cart';
 import ScrollToTop from './components/ScrollToTop';
-import FloatingBackground from './components/FloatingBackground';
+
 
 // Pages
 import Home2    from './pages/Home2';
@@ -40,7 +40,7 @@ function AppContent() {
   return (
     <Router>
       <ScrollToTop />
-      <FloatingBackground />
+
       <div className="app-wrapper">
         <Navbar />
         <Cart />

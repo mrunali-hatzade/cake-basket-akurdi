@@ -4,7 +4,7 @@ import { Star, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { useProducts } from '../context/ProductContext';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const SHOP_ITEMS = [
   { src: '/3d_strawberry.png', alt: '', className: 'fi-shop-strawb   fi-lg fi-mid'  },
@@ -12,14 +12,42 @@ const SHOP_ITEMS = [
   { src: '/3d_ice_cream.png',  alt: '', className: 'fi-shop-icecream fi-md fi-bright'},
 ];
 
-const CATEGORIES = ['All Products', 'Signature Cakes', 'Cupcakes', 'Custom Orders'];
+const CATEGORIES = [
+  'All Products', 
+  'Signature Cakes', 
+  'Cupcakes', 
+  'Custom Orders',
+  'Birthday',
+  'Wedding',
+  'Anniversary',
+  'Photo Cakes',
+  'Eggless',
+  'Pastries',
+  'Festival',
+  'Designer',
+  'Kids Special'
+];
 
 const Shop = () => {
   const { addToCart } = useCart();
   const { addToast } = useToast();
   const { products } = useProducts();
+  const location = useLocation();
+  
   const [activeCategory, setActiveCategory] = useState('All Products');
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Read the ?cat= from URL if present
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const catQuery = params.get('cat');
+    if (catQuery) {
+      // Find matching category (case-insensitive)
+      const matchedCat = CATEGORIES.find(c => c.toLowerCase().includes(catQuery.toLowerCase()));
+      if (matchedCat) {
+        setActiveCategory(matchedCat);
+      }
+    }
+  }, [location.search]);
 
   const filteredProducts = activeCategory === 'All Products' 
     ? products 
@@ -58,7 +86,7 @@ const Shop = () => {
         <div className="shop-grid">
           {filteredProducts.length === 0 ? (
             <div className="empty-category">
-              <p>No products found in this category yet!</p>
+              <p>No products found in the "{activeCategory}" category yet!</p>
             </div>
           ) : (
             filteredProducts.map((product) => (

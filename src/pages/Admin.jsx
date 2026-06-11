@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Package, ShoppingBag, PlusCircle, Trash2, CheckCircle, Store } from 'lucide-react';
+import { Package, ShoppingBag, PlusCircle, Trash2, CheckCircle, Store, BarChart2 } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
 import { useOrders } from '../context/OrderContext';
 import './Admin.css';
@@ -8,7 +8,43 @@ export default function Admin() {
   const { products, addProduct, removeProduct } = useProducts();
   const { orders, addOrder, updateOrderStatus } = useOrders();
   
-  const [activeTab, setActiveTab] = useState('orders');
+  const [activeTab, setActiveTab] = useState('analytics');
+
+  // --- Analytics Calculations ---
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  const todayOrders = orders.filter(o => o.timestamp >= today.getTime());
+  const monthOrders = orders.filter(o => o.timestamp >= firstDayOfMonth.getTime());
+
+  const todayRevenue = todayOrders.filter(o => o.paymentStatus === 'Paid').reduce((sum, o) => sum + o.total, 0);
+  const monthRevenue = monthOrders.filter(o => o.paymentStatus === 'Paid').reduce((sum, o) => sum + o.total, 0);
+  const todayVolume = todayOrders.length;
+  
+  // Day-wise and Month-wise Summaries
+  const dailyReport = Object.values(
+    orders.reduce((acc, o) => {
+      const date = new Date(o.timestamp || Date.now());
+      const dStr = date.toLocaleDateString();
+      if (!acc[dStr]) acc[dStr] = { period: dStr, orders: 0, revenue: 0 };
+      acc[dStr].orders++;
+      if (o.paymentStatus === 'Paid') acc[dStr].revenue += o.total;
+      return acc;
+    }, {})
+  );
+
+  const monthlyReport = Object.values(
+    orders.reduce((acc, o) => {
+      const date = new Date(o.timestamp || Date.now());
+      const mStr = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+      if (!acc[mStr]) acc[mStr] = { period: mStr, orders: 0, revenue: 0 };
+      acc[mStr].orders++;
+      if (o.paymentStatus === 'Paid') acc[mStr].revenue += o.total;
+      return acc;
+    }, {})
+  );
+  // ------------------------------
   
   // Inventory Form State
   const [formData, setFormData] = useState({ name: '', price: '', category: 'Signature Cakes', image: '' });
@@ -72,6 +108,9 @@ export default function Admin() {
         </div>
 
         <div className="admin-tabs">
+          <button className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>
+            <BarChart2 size={18} /> Analytics
+          </button>
           <button className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
             <ShoppingBag size={18} /> Order History
           </button>
@@ -82,6 +121,111 @@ export default function Admin() {
             <Package size={18} /> Inventory Management
           </button>
         </div>
+
+        {/* --- ANALYTICS TAB --- */}
+        {activeTab === 'analytics' && (
+          <div className="analytics-dashboard fade-up">
+            <div className="stat-grid">
+              <div className="stat-card glass">
+                <div className="stat-label">Today's Revenue</div>
+                <div className="stat-value text-success">₹{todayRevenue.toFixed(2)}</div>
+                <div className="stat-sub">From {todayOrders.filter(o => o.paymentStatus === 'Paid').length} paid orders today</div>
+              </div>
+              <div className="stat-card glass">
+                <div className="stat-label">This Month's Revenue</div>
+                <div className="stat-value text-primary">₹{monthRevenue.toFixed(2)}</div>
+                <div className="stat-sub">Since {firstDayOfMonth.toLocaleDateString()}</div>
+              </div>
+              <div className="stat-card glass">
+                <div className="stat-label">Today's Order Volume</div>
+                <div className="stat-value">{todayVolume}</div>
+                <div className="stat-sub">Total orders placed today</div>
+              </div>
+            </div>
+
+            <div className="admin-card glass" style={{marginTop: '2rem'}}>
+              <div className="card-title">
+                <h2>Recent Activity</h2>
+              </div>
+              <ul className="activity-list">
+                {orders.slice(0, 5).map(o => (
+                  <li key={o.id} className="activity-item">
+                    <div className="activity-icon">
+                      {o.platform === 'In-Store' ? <Store size={16} /> : <ShoppingBag size={16} />}
+                    </div>
+                    <div className="activity-details">
+                      <strong>{o.id}</strong> - {o.customer} bought <em>{o.items}</em> for ₹{o.total}
+                      <span className="activity-time">{o.time}</span>
+                    </div>
+                  </li>
+                ))}
+                {orders.length === 0 && <li style={{color:'var(--color-text-muted)'}}>No activity yet.</li>}
+              </ul>
+            </div>
+
+            <div className="summary-tables-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginTop: '2rem' }}>
+              
+              <div className="admin-card glass">
+                <div className="card-title">
+                  <h2>Daily Sales Tracker</h2>
+                </div>
+                <div className="table-wrapper">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Orders</th>
+                        <th>Revenue</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dailyReport.map((row, i) => (
+                        <tr key={i}>
+                          <td style={{fontWeight:600}}>{row.period}</td>
+                          <td>{row.orders}</td>
+                          <td className="text-success" style={{fontWeight:700}}>₹{row.revenue.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                      {dailyReport.length === 0 && (
+                        <tr><td colSpan="3" style={{textAlign:'center', padding:'1rem'}}>No data available.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="admin-card glass">
+                <div className="card-title">
+                  <h2>Monthly Sales Tracker</h2>
+                </div>
+                <div className="table-wrapper">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Month</th>
+                        <th>Orders</th>
+                        <th>Revenue</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {monthlyReport.map((row, i) => (
+                        <tr key={i}>
+                          <td style={{fontWeight:600}}>{row.period}</td>
+                          <td>{row.orders}</td>
+                          <td className="text-primary" style={{fontWeight:700}}>₹{row.revenue.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                      {monthlyReport.length === 0 && (
+                        <tr><td colSpan="3" style={{textAlign:'center', padding:'1rem'}}>No data available.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        )}
 
         {/* --- ORDER HISTORY TAB --- */}
         {activeTab === 'orders' && (

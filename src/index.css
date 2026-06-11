@@ -218,11 +218,10 @@ h3 { font-size: 1.4rem; }
 .fade-in   { animation: fadeIn    .5s  var(--ease) both; }
 .slide-left{ animation: slideLeft .65s var(--ease) both; }
 
-/* Global Scroll Reveal */
+/* Global Scroll Reveal (Disabled by user request) */
 .reveal {
-  opacity: 0;
-  transform: translateY(35px);
-  transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  opacity: 1;
+  transform: translateY(0);
 }
 .reveal.is-visible {
   opacity: 1;

@@ -13,6 +13,12 @@
   gap: 1rem;
   justify-content: center;
 }
+
+@keyframes pillFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
 .cat-pill {
   display: flex;
   align-items: center;
@@ -25,27 +31,76 @@
   font-size: .9rem;
   color: var(--color-text);
   cursor: pointer;
-  transition: all var(--dur) var(--ease);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  animation: pillFloat 3.5s ease-in-out infinite;
 }
-.cat-pill:hover { background:var(--color-primary); color:#fff; border-color:var(--color-primary); transform:translateY(-3px); }
-.cat-emoji { font-size: 1.3rem; }
 
-/* ── Products Carousel ─────────────────────────── */
+/* Stagger the continuous floating so it looks organic */
+.cat-pill:nth-child(2n) { animation-delay: 0.7s; }
+.cat-pill:nth-child(3n) { animation-delay: 1.4s; }
+.cat-pill:nth-child(5n) { animation-delay: 2.2s; }
+
+/* The glass shine effect on hover */
+.cat-pill::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -150%;
+  width: 50%; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-20deg);
+  transition: all 0.6s ease;
+}
+
+.cat-pill:hover::before {
+  left: 150%;
+}
+
+.cat-pill:hover { 
+  background: var(--color-primary); 
+  color: #fff; 
+  border-color: var(--color-primary); 
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+  animation-play-state: paused;
+}
+
+.cat-emoji { 
+  font-size: 1.3rem; 
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.cat-pill:hover .cat-emoji {
+  transform: scale(1.35) rotate(15deg);
+}
+
+/* ── Products Carousel / Marquee ─────────────────────────── */
+.products-carousel-wrap {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  /* Fades out the edges for a smoother entrance/exit */
+  -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  padding: 1.5rem 0;
+}
+
 .products-carousel {
   display: flex;
   gap: 1.5rem;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding-bottom: 1.5rem;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  width: max-content;
+  animation: testMarquee 30s linear infinite;
+  will-change: transform;
 }
-.products-carousel::-webkit-scrollbar { display:none; }
+
+.products-carousel:hover {
+  animation-play-state: paused;
+}
 
 .product-card {
   min-width: 300px;
-  scroll-snap-align: start;
   flex-shrink: 0;
 }
 .product-img-wrap {
@@ -100,7 +155,10 @@
   cursor:pointer; font-weight:700; font-size:.9rem; color:var(--oc,var(--color-primary));
 }
 [data-theme="dark"] .offer-code { background:rgba(201,123,99,.1); }
-.copy-hint { font-size:.75rem; font-weight:400; color:var(--color-text-muted); }
+.copy-hint { font-size:.75rem; font-weight:400;  color: var(--color-text-muted);
+}
+
+
 
 /* ── Why Us ────────────────────────────────────── */
 .why-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1.5rem; }

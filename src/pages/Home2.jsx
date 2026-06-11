@@ -54,7 +54,8 @@ export default function Home() {
   const { toggle: toggleWish, isWishlisted } = useWishlist();
   const { addToast } = useToast();
   const { products } = useProducts();
-  const [feedback, setFeedback] = useState({ name:'', message:'' });
+  const [contactForm, setContactForm] = useState({ name:'', email:'', subject:'', message:'' });
+  const [feedbackForm, setFeedbackForm] = useState({ name:'', rating:5, message:'' });
   const [activeOffer, setActiveOffer] = useState(null);
   const [countdown, setCountdown] = useState({ h:4, m:23, s:59 });
 
@@ -78,10 +79,15 @@ export default function Home() {
     toggleWish(p);
     addToast(isWishlisted(p.id) ? 'Removed from wishlist' : `Added to wishlist ❤️`, 'info');
   };
-  const handleFeedback = (e) => {
+  const handleContactSubmit = (e) => {
+    e.preventDefault();
+    addToast('Thanks for reaching out! We will get back to you shortly.', 'success');
+    setContactForm({name:'', email:'', subject:'', message:''});
+  };
+  const handleFeedbackSubmit = (e) => {
     e.preventDefault();
     addToast('Thank you for your feedback! 🙏', 'success');
-    setFeedback({name:'',message:''});
+    setFeedbackForm({name:'', rating:5, message:''});
   };
 
   const pad = n => String(n).padStart(2,'0');
@@ -129,40 +135,41 @@ export default function Home() {
       {/* ── Featured Products Carousel ── */}
       <section className="section stripe">
         <div className="container">
-          <div className="section-header reveal">
+          <div className="section-header">
             <div className="tag">Bestsellers</div>
             <h2>Signature Bakes</h2>
-            <p>Handcrafted with love, adored by thousands</p>
           </div>
-          <div className="products-carousel">
-            {products.map((p, i) => (
-              <div key={p.id} className="product-card card reveal" style={{transitionDelay:`${i*80}ms`}}>
-                <div className="product-img-wrap">
-                  <img src={p.image} alt={p.name} />
-                  {i===0 && <div className="product-badge-tag">🔥 Best Seller</div>}
-                  <button className={`wish-btn ${isWishlisted(p.id)?'wishlisted':''}`} onClick={()=>handleWish(p)}>
-                    <Heart size={18} fill={isWishlisted(p.id)?'currentColor':'none'} />
-                  </button>
-                </div>
-                <div className="product-body">
-                  <div className="product-cat">{p.category}</div>
-                  <h3 className="product-name">{p.name}</h3>
-                  <div className="product-meta">
-                    <div className="stars">
-                      {[...Array(5)].map((_,j)=><Star key={j} size={14} fill="currentColor" />)}
-                      <span style={{color:'var(--color-text-muted)', fontSize:'.85rem'}}>&nbsp;(48)</span>
-                    </div>
-                    <span className="product-price">₹{p.price.toFixed(0)}</span>
-                  </div>
-                  <div style={{display:'flex', gap:'.5rem', marginTop:'.75rem'}}>
-                    <button className="btn btn-primary btn-sm" style={{flex:1}} onClick={()=>handleAddToCart(p)}>
-                      <ShoppingCart size={15}/> Add to Cart
+          <div className="products-carousel-wrap">
+            <div className="products-carousel">
+              {[...products.slice(0, 6), ...products.slice(0, 6), ...products.slice(0, 6)].map((p, i) => (
+                <div key={i} className="product-card card">
+                  <div className="product-img-wrap">
+                    <img src={p.image} alt={p.name} />
+                    {(i % 6) === 0 && <div className="product-badge-tag">🔥 Best Seller</div>}
+                    <button className={`wish-btn ${isWishlisted(p.id)?'wishlisted':''}`} onClick={()=>handleWish(p)}>
+                      <Heart size={18} fill={isWishlisted(p.id)?'currentColor':'none'} />
                     </button>
-                    <Link to={`/product/${p.id}`} className="btn btn-outline btn-sm">View</Link>
+                  </div>
+                  <div className="product-body">
+                    <div className="product-cat">{p.category}</div>
+                    <h3 className="product-name">{p.name}</h3>
+                    <div className="product-meta">
+                      <div className="stars">
+                        {[...Array(5)].map((_,j)=><Star key={j} size={14} fill="currentColor" />)}
+                        <span style={{color:'var(--color-text-muted)', fontSize:'.85rem'}}>&nbsp;(48)</span>
+                      </div>
+                      <span className="product-price">₹{p.price.toFixed(0)}</span>
+                    </div>
+                    <div style={{display:'flex', gap:'.5rem', marginTop:'.75rem'}}>
+                      <button className="btn btn-primary btn-sm" style={{flex:1}} onClick={()=>handleAddToCart(p)}>
+                        <ShoppingCart size={15}/> Add to Cart
+                      </button>
+                      <Link to={`/product/${p.id}`} className="btn btn-outline btn-sm">View</Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
           <div style={{textAlign:'center', marginTop:'2.5rem'}}>
             <Link to="/shop" className="btn btn-outline reveal">View All Cakes <ArrowRight size={16}/></Link>
@@ -290,22 +297,64 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Feedback Form ── */}
-      <section className="section">
-        <div className="container" style={{maxWidth:640}}>
+      {/* ── Feedback & Contact Section ── */}
+      <section className="section stripe" style={{ position: 'relative', overflow: 'hidden' }}>
+        <div className="container" style={{ position: 'relative', zIndex: 2 }}>
           <div className="section-header">
-            <div className="tag">Feedback</div>
-            <h2>We'd Love to Hear From You</h2>
+            <div className="tag">Get in Touch</div>
+            <h2>Reach Out or Leave a Review</h2>
+            <p>We'd love to hear from you!</p>
           </div>
-          <form className="feedback-form card" onSubmit={handleFeedback}>
-            <input className="input" placeholder="Your Name" value={feedback.name}
-              onChange={e=>setFeedback({...feedback,name:e.target.value})} required />
-            <textarea className="textarea" rows={4} placeholder="Share your experience or suggestions..."
-              value={feedback.message} onChange={e=>setFeedback({...feedback,message:e.target.value})} required />
-            <button type="submit" className="btn btn-primary" style={{alignSelf:'center',paddingInline:'2.5rem'}}>
-              <Send size={17}/> Send Feedback
-            </button>
-          </form>
+          
+          <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(320px, 1fr))', gap:'2rem', maxWidth:'1000px', margin:'0 auto'}}>
+            
+            {/* Feedback Column */}
+            <div className="feedback-col">
+              <h3 style={{marginBottom:'1rem', fontSize:'1.2rem', textAlign:'center'}}>Leave a Review</h3>
+              <form className="feedback-form card" onSubmit={handleFeedbackSubmit} style={{height:'100%', display:'flex', flexDirection:'column'}}>
+                <div style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'1rem', alignItems:'center', marginBottom:'1rem'}}>
+                  <input className="input" placeholder="Your Name" value={feedbackForm.name}
+                    onChange={e=>setFeedbackForm({...feedbackForm,name:e.target.value})} required />
+                  <div style={{display:'flex', alignItems:'center', gap:'0.5rem', background:'var(--color-surface)', padding:'0.75rem 1rem', borderRadius:'var(--r-md)', border:'1.5px solid var(--color-border)'}}>
+                    <span style={{fontWeight:600, fontSize:'0.9rem'}}>Rating:</span>
+                    <select value={feedbackForm.rating} onChange={e=>setFeedbackForm({...feedbackForm,rating:Number(e.target.value)})} style={{border:'none', background:'transparent', outline:'none', fontWeight:'bold', color:'var(--brand-gold)', cursor:'pointer'}}>
+                      <option value={5}>⭐⭐⭐⭐⭐</option>
+                      <option value={4}>⭐⭐⭐⭐</option>
+                      <option value={3}>⭐⭐⭐</option>
+                      <option value={2}>⭐⭐</option>
+                      <option value={1}>⭐</option>
+                    </select>
+                  </div>
+                </div>
+                <textarea className="textarea" rows={4} placeholder="Share your experience..."
+                  value={feedbackForm.message} onChange={e=>setFeedbackForm({...feedbackForm,message:e.target.value})} required style={{flex:1, marginBottom:'1rem'}} />
+                <button type="submit" className="btn btn-outline" style={{width:'100%'}}>
+                  Submit Review
+                </button>
+              </form>
+            </div>
+
+            {/* Contact Column */}
+            <div className="contact-col">
+              <h3 style={{marginBottom:'1rem', fontSize:'1.2rem', textAlign:'center'}}>Contact Us</h3>
+              <form className="feedback-form card" onSubmit={handleContactSubmit} style={{height:'100%', display:'flex', flexDirection:'column'}}>
+                <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem', marginBottom:'1rem'}}>
+                  <input className="input" placeholder="Your Name" value={contactForm.name}
+                    onChange={e=>setContactForm({...contactForm,name:e.target.value})} required />
+                  <input type="email" className="input" placeholder="Email Address" value={contactForm.email}
+                    onChange={e=>setContactForm({...contactForm,email:e.target.value})} required />
+                </div>
+                <input className="input" placeholder="Subject (e.g. Custom Cake)" value={contactForm.subject}
+                  onChange={e=>setContactForm({...contactForm,subject:e.target.value})} required style={{marginBottom:'1rem'}} />
+                <textarea className="textarea" rows={4} placeholder="How can we help you today?"
+                  value={contactForm.message} onChange={e=>setContactForm({...contactForm,message:e.target.value})} required style={{flex:1, marginBottom:'1rem'}} />
+                <button type="submit" className="btn btn-primary" style={{width:'100%'}}>
+                  <Send size={17}/> Send Message
+                </button>
+              </form>
+            </div>
+
+          </div>
         </div>
       </section>
 
