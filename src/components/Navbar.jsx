@@ -129,15 +129,15 @@ export default function Navbar() {
           {/* Right Actions */}
           <div className="nav-actions">
             
-            <button className="icon-btn" onClick={() => setSearchOpen(true)} aria-label="Search">
+            <button className="icon-btn hide-mobile" onClick={() => setSearchOpen(true)} aria-label="Search">
               <Search size={20} />
             </button>
 
-            <button className="icon-btn" onClick={toggle} aria-label="Toggle theme">
+            <button className="icon-btn hide-mobile" onClick={toggle} aria-label="Toggle theme">
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
-            <Link to="/wishlist" className="icon-btn icon-badge-wrap" aria-label="Wishlist">
+            <Link to="/wishlist" className="icon-btn icon-badge-wrap hide-mobile" aria-label="Wishlist">
               <Heart size={20} />
               {wishlistCount > 0 && <span className="badge nav-badge">{wishlistCount}</span>}
             </Link>
@@ -190,8 +190,8 @@ export default function Navbar() {
               </Link>
             )}
 
-            <Link to="/shop" className="btn btn-primary btn-sm hide-mobile nav-cta">
-              Order Now
+            <Link to="/shop" className="btn btn-primary btn-sm nav-cta" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+              Shop Now
             </Link>
 
             {/* Hamburger */}
@@ -205,6 +205,21 @@ export default function Navbar() {
         {mobileOpen && (
           <div className="mobile-menu">
             <div className="mobile-links">
+              
+              {/* Mobile Quick Actions */}
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                <button className="icon-btn" onClick={() => { setMobileOpen(false); setSearchOpen(true); }} aria-label="Search">
+                  <Search size={22} />
+                </button>
+                <Link to="/wishlist" className="icon-btn icon-badge-wrap" aria-label="Wishlist" onClick={() => setMobileOpen(false)}>
+                  <Heart size={22} />
+                  {wishlistCount > 0 && <span className="badge nav-badge">{wishlistCount}</span>}
+                </Link>
+                <button className="icon-btn" onClick={toggle} aria-label="Toggle theme">
+                  {isDark ? <Sun size={22} /> : <Moon size={22} />}
+                </button>
+              </div>
+
               {[['/', 'Home'], ['/shop', 'Shop'], ['/custom-order', 'Custom Cake'],
                 ['/gallery', 'Gallery'], ['/about', 'About'], ['/contact', 'Contact'],
                 ['/track-order', 'Track Order'], ['/login', 'Login / Register']].map(([p,l]) => (
