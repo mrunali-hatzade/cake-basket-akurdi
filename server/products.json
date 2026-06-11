@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "Rasmalai Pistachio Cake",
+    "price": 850,
+    "image": "/strawberry-cake.png",
+    "rating": 4.9,
+    "category": "Signature Cakes"
+  },
+  {
+    "id": 2,
+    "name": "Premium Black Forest",
+    "price": 700,
+    "image": "/chocolate-cake.png",
+    "rating": 5,
+    "category": "Signature Cakes"
+  },
+  {
+    "id": 3,
+    "name": "Gulab Jamun Cupcakes (6x)",
+    "price": 450,
+    "image": "/strawberry-cake.png",
+    "rating": 4.8,
+    "category": "Cupcakes"
+  },
+  {
+    "id": 4,
+    "name": "Choco Truffle Dream",
+    "price": 950,
+    "image": "/chocolate-cake.png",
+    "rating": 4.7,
+    "category": "Signature Cakes"
+  },
+  {
+    "id": 1781173910442,
+    "name": "abx",
+    "price": 99,
+    "category": "Signature Cakes",
+    "image": "/chocolate-cake.png",
+    "rating": 5
+  }
+]

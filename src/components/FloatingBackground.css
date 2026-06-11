@@ -1,0 +1,44 @@
+.floating-bg-container {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.floating-item {
+  position: absolute;
+  opacity: 0.15; /* Subtly visible */
+  mix-blend-mode: multiply; /* Removes white backgrounds */
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+}
+
+[data-theme="dark"] .floating-item {
+  opacity: 0.08;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)) grayscale(30%);
+}
+
+@keyframes float0 {
+  0%   { transform: translateY(0) rotate(0deg); }
+  33%  { transform: translateY(-40px) rotate(10deg); }
+  66%  { transform: translateY(20px) rotate(-5deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes float1 {
+  0%   { transform: translateY(0) rotate(0deg); }
+  33%  { transform: translateY(30px) rotate(-15deg); }
+  66%  { transform: translateY(-20px) rotate(5deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes float2 {
+  0%   { transform: translateY(0) translateX(0) rotate(0deg); }
+  33%  { transform: translateY(-20px) translateX(20px) rotate(8deg); }
+  66%  { transform: translateY(15px) translateX(-15px) rotate(-8deg); }
+  100% { transform: translateY(0) translateX(0) rotate(0deg); }
+}
+
+.float-anim-0 { animation: float0 infinite ease-in-out; }
+.float-anim-1 { animation: float1 infinite ease-in-out; }
+.float-anim-2 { animation: float2 infinite ease-in-out; }
